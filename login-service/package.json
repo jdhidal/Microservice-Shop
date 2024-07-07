@@ -1,0 +1,12 @@
+{
+  "name": "login-service",
+  "version": "1.0.0",
+  "description": "Microservice login",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}

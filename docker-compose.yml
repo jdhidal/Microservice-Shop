@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  users-service:
+    build: ./users-service
+    ports:
+      - "5001:5001"
+
+  login-service:
+    build: ./login-service
+    ports:
+      - "5002:5002"
+
+  purchase-service:
+    build: ./purchase-service
+    ports:
+      - "5003:5003"

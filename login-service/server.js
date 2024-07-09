@@ -7,7 +7,8 @@ app.use(bodyParser.json());
 
 const users = {
   john: 'password123',
-  jane: 'mypassword'
+  jane: 'mypassword',
+  diego: '123'
 };
 
 app.post('/login', (req, res) => {

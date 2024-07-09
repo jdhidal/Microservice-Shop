@@ -4,7 +4,9 @@ const port = 5001;
 
 const users = [
   { id: 1, name: 'John Doe' },
-  { id: 2, name: 'Jane Smith' }
+  { id: 2, name: 'Jane Smith' },
+  { id: 3, name: 'Diego Hidalgo' },
+  { id: 4, name: 'Kevin Guaña' },
 ];
 
 app.get('/users', (req, res) => {

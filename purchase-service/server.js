@@ -7,7 +7,8 @@ app.use(bodyParser.json());
 
 const users = {
   john: { id: 1, balance: 10 },
-  jane: { id: 2, balance: 50 }
+  jane: { id: 2, balance: 50 },
+  diego: {id: 3, balance: 100}
 };
 
 const ITEM = 'book';

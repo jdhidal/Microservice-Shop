@@ -1,6 +1,11 @@
-project members: 
+# Microservice Shop
+
+The problem is to have a separate store system in microservices, this project separates the login, purchase and user. so that if we need to make a change to the login system, the purchasing service is not affected.
+
+## Project members: 
 Diego Hidalgo ,
 Kevin Guaña
+
 ## Requirements
 
 - [Node.js](https://nodejs.org/) (version 14)

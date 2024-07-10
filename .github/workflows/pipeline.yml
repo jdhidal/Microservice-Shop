@@ -40,14 +40,34 @@ jobs:
     - name: Execute Docker Compose
       run: |
         docker-compose up -d
-        
-    - name: Deploy Docker to AWS (EC2)
-      uses: bitovi/github-actions-deploy-docker-to-ec2@v1.0.1
-      with:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_EC2_HOST: ${{ secrets.AWS_EC2_HOST }}
-        AWS_EC2_USER: ${{ secrets.AWS_EC2_USER }}
-        AWS_EC2_KEY: ${{ secrets.AWS_EC2_KEY }}
-        DOCKER_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/users-service:latest
-        DOCKER_CONTAINER_NAME: service-user
+  deploy-AWS:
+    needs: [build-and-push]  
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Set permissions for private key
+      run: |
+        echo "${{ secrets.AWS_EC2_KEY }}" > key.pem
+        chmod 600 key.pem
+
+    - name: Stop running containers
+      run: |
+        ssh -o StrictHostKeyChecking=no -i key.pem ec2-user@${{ secrets.AWS_EC2_HOST }} 'sudo docker stop service-users || true'
+        ssh -o StrictHostKeyChecking=no -i key.pem ec2-user@${{ secrets.AWS_EC2_HOST }} 'sudo docker rm service-users || true'
+        ssh -o StrictHostKeyChecking=no -i key.pem ec2-user@${{ secrets.AWS_EC2_HOST }} 'sudo docker stop service-login || true'
+        ssh -o StrictHostKeyChecking=no -i key.pem ec2-user@${{ secrets.AWS_EC2_HOST }} 'sudo docker rm service-login || true'
+        ssh -o StrictHostKeyChecking=no -i key.pem ec2-user@${{ secrets.AWS_EC2_HOST }} 'sudo docker stop service-purchase || true'
+        ssh -o StrictHostKeyChecking=no -i key.pem ec2-user@${{ secrets.AWS_EC2_HOST }} 'sudo docker rm service-purchase || true'
+    
+    - name: Pull Docker images
+      run: |
+        ssh -o StrictHostKeyChecking=no -i key.pem ec2-user@${{ secrets.AWS_EC2_HOST }} 'sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/users-service:latest'
+        ssh -o StrictHostKeyChecking=no -i key.pem ec2-user@${{ secrets.AWS_EC2_HOST }} 'sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/login-service:latest'
+        ssh -o StrictHostKeyChecking=no -i key.pem ec2-user@${{ secrets.AWS_EC2_HOST }} 'sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/purchase-service:latest'
+
+    - name: Run new containers
+      run: |
+        ssh -o StrictHostKeyChecking=no -i key.pem ec2-user@${{ secrets.AWS_EC2_HOST }} 'sudo docker run -d --name service-users -p 5001:5001 ${{ secrets.DOCKERHUB_USERNAME }}/users-service:latest'
+        ssh -o StrictHostKeyChecking=no -i key.pem ec2-user@${{ secrets.AWS_EC2_HOST }} 'sudo docker run -d --name service-login -p 5002:5002 ${{ secrets.DOCKERHUB_USERNAME }}/login-service:latest'
+        ssh -o StrictHostKeyChecking=no -i key.pem ec2-user@${{ secrets.AWS_EC2_HOST }} 'sudo docker run -d --name service-purchase -p 5003:5003 ${{ secrets.DOCKERHUB_USERNAME }}/purchase-service:latest'
